@@ -120,7 +120,6 @@ def draw_rectangles(tur):
         for y in range(-300, 350, 200):
             draw_rectangle(tur, x-10, y+5, 20, 15)
 
-
 def run_no_threads(tur, log, main_turtle):
     """Draw different shapes without using threads"""
 
@@ -163,6 +162,51 @@ def run_with_threads(tur, log, main_turtle):
     # TODO - Start add your code here.
     # You need to use 4 threads where each thread concurrently drawing one type of shape.
     # You are free to change any functions in this code except main()
+
+    # test 3
+    """Draw in different locations"""
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            thread_rec = threading.Thread(draw_rectangle(tur, x-10, y+5, 20, 15))
+            thread_rec.start()
+            thread_rec.join()
+
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            thread_cir = threading.Thread(draw_circle(tur, x, y-2, 50))
+            thread_cir.start()
+            thread_cir.join()
+
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            thread_sq = threading.Thread(draw_square(tur, x - 50, y + 50, 100))
+            thread_sq.start()
+            thread_sq.join()
+
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            thread_tri = threading.Thread(draw_triangle(tur, x-30, y-30+10, 60))
+            thread_tri.start()
+            thread_tri.join()
+
+    # test 2
+    # for x in range(-300, 350, 200):
+    #     for y in range(-300, 350, 200):
+    #         thread_rec = threading.Thread(draw_rectangle(tur, x-10, y+5, 20, 15))
+    #         thread_cir = threading.Thread(draw_circle(tur, x, y-2, 50))
+    #         thread_sq = threading.Thread(draw_square(tur, x - 50, y + 50, 100))
+    #         thread_tri = threading.Thread(draw_triangle(tur, x-30, y-30+10, 60))
+
+    #         thread_rec.start()
+    #         thread_cir.start()
+    #         thread_sq.start()
+    #         thread_tri.start()
+            
+    #         thread_rec.join()
+    #         thread_cir.join()
+    #         thread_sq.join()
+    #         thread_tri.join()
+
 
     log.step_timer('All drawing commands have been created')
 

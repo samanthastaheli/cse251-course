@@ -13,7 +13,7 @@ Instructions:
 """
 
 from datetime import datetime, timedelta
-import threading
+import threading 
 import requests
 import json
 
@@ -36,14 +36,15 @@ class Deck:
         self.reshuffle()
         self.remaining = 52
 
-
     def reshuffle(self):
         # TODO - add call to reshuffle
-        pass
+        requests.get("http://deckofcardsapi.com/api/deck/{self.id}/shuffle/")
+
 
     def draw_card(self):
         # TODO add call to get a card
-        pass
+        requests.get("http://deckofcardsapi.com/api/deck/{self.id}/draw/?count=2")
+
 
     def cards_remaining(self):
         return self.remaining
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     #        team_get_deck_id.py program once. You can have
     #        multiple decks if you need them
 
-    deck_id = 'ENTER ID HERE'
+    deck_id = 'zyfer350mvmd'
 
     # Testing Code >>>>>
     deck = Deck(deck_id)
