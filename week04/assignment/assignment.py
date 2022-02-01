@@ -76,12 +76,19 @@ class Factory(threading.Thread):
     def __init__(self):
         # TODO, you need to add arguments that will pass all of data that 1 factory needs
         # to create cars and to place them in a queue.
-        pass
+        self.model = []
+        self.make = []
+        self.year = []
 
 
     def run(self):
         for i in range(CARS_TO_PRODUCE):
             # TODO Add you code here
+            car = Car()
+            self.model = car.model
+            self.make = car.make
+            self.year = car.year 
+            
             """
             create a car
             place the car on the queue
@@ -142,7 +149,8 @@ def main():
     log.start_timer()
 
     # TODO Start factory and dealership
-    
+    factory.run()
+    dealer.run(model, make, year)
     # TODO Wait for factory and dealership to complete
 
     log.stop_timer(f'All {sum(queue_stats)} have been created')
