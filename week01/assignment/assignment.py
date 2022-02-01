@@ -21,6 +21,11 @@ Instructions:
 - You can create other functions if needed.
 - No global variables.
 
+Justification Statement:
+I think my code meets requirements. However, if the requirment was to draw a random 
+number of shapes at a time then I would be slightly deficiant. I was confused by the 
+direction that some not all shapes are supposed to be drawn.
+
 """
 
 
@@ -120,6 +125,38 @@ def draw_rectangles(tur):
         for y in range(-300, 350, 200):
             draw_rectangle(tur, x-10, y+5, 20, 15)
 
+def draw_thread_squares(tur, lock):
+    """Draw a group of squares"""
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            lock.aquire()
+            draw_square(tur, x - 50, y + 50, 100)
+            lock.release()
+
+def draw_thread_circles(tur, lock):
+    """Draw a group of circles"""
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            lock.aquire()
+            draw_circle(tur, x, y-2, 50)
+            lock.release()
+
+def draw_thread_triangles(tur, lock):
+    """Draw a group of triangles"""
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            lock.aquire()
+            draw_triangle(tur, x-30, y-30+10, 60)
+            lock.release()
+
+def draw_thread_rectangles(tur, lock):
+    """Draw a group of Rectangles"""
+    for x in range(-300, 350, 200):
+        for y in range(-300, 350, 200):
+            lock.aquire()
+            draw_rectangle(tur, x-10, y+5, 20, 15)
+            lock.release()
+
 def run_no_threads(tur, log, main_turtle):
     """Draw different shapes without using threads"""
 
@@ -147,12 +184,6 @@ def run_no_threads(tur, log, main_turtle):
     log.stop_timer('Total drawing time')
     tur.clear()
 
-def lock_thread(filename, count):
-    '''pass the file and count
-        lock, aquire, open, write, close, release
-    '''
-    pass
-
 def run_with_threads(tur, log, main_turtle):
     """Draw different shapes using threads"""
 
@@ -162,30 +193,29 @@ def run_with_threads(tur, log, main_turtle):
     tur.pensize(4)
     log.write('-' * 50)
     log.start_timer('Start Drawing With Threads')
-    tur.move(0, 0)
 
     # TODO - Start add your code here.
     # You need to use 4 threads where each thread concurrently drawing one type of shape.
     # You are free to change any functions in this code except main()
-    """Draw in different locations"""
+    """Draw using lock"""
 
-    """test that works"""
-    for x in range(-300, 350, 200):
-        for y in range(-300, 350, 200):
-            thread_rec = threading.Thread(draw_rectangle(tur, x-10, y+5, 20, 15))
-            thread_cir = threading.Thread(draw_circle(tur, x, y-2, 50))
-            thread_sq = threading.Thread(draw_square(tur, x - 50, y + 50, 100))
-            thread_tri = threading.Thread(draw_triangle(tur, x-30, y-30+10, 60))
+    lock = threading.Lock()
 
-            thread_rec.start()
-            thread_cir.start()
-            thread_sq.start()
-            thread_tri.start()
-            
-            thread_rec.join()
-            thread_cir.join()
-            thread_sq.join()
-            thread_tri.join()
+    tur.move(0, 0)
+    thread_rec = threading.Thread(draw_rectangle(tur, lock))
+    thread_cir = threading.Thread(draw_circle(tur, lock))
+    thread_sq = threading.Thread(draw_square(tur, lock))
+    thread_tri = threading.Thread(draw_triangle(tur, lock))
+
+    thread_rec.start()
+    thread_cir.start()
+    thread_sq.start()
+    thread_tri.start()
+    
+    thread_rec.join()
+    thread_cir.join()
+    thread_sq.join()
+    thread_tri.join()
 
     """test 5: lock"""
     # lock = threading.Lock()

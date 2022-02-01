@@ -134,7 +134,7 @@ class Board():
             if board_letter == letter:
                 self.highlight(row, col)
                 row += dir_x
-                col += dir_y
+                col += dir_y 
             else:
                 self.highlighting = copy.deepcopy(highlight_copy)
                 return False

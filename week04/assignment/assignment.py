@@ -3,15 +3,12 @@ Course: CSE 251
 Lesson Week: 04
 File: assignment.py
 Author: <Your name>
-
 Purpose: Assignment 04 - Factory and Dealership
-
 Instructions:
-
 - See I-Learn
-
 """
 
+from concurrent.futures import thread
 import time
 import threading
 import random
@@ -98,10 +95,12 @@ class Factory(threading.Thread):
 class Dealer(threading.Thread):
     """ This is a dealer that receives cars """
 
-    def __init__(self):
+    def __init__(self, model, make, year):
         # TODO, you need to add arguments that pass all of data that 1 Dealer needs
         # to sell a car
-        pass
+        self.model = []
+        self.make = []
+        self.year = []
 
     def run(self):
         while True:
@@ -121,21 +120,29 @@ def main():
     log = Log(show_terminal=True)
 
     # TODO Create semaphore(s)
+    sem_dealer = threading.Semaphore(10)
+    sem_factory = threading.Semaphore(0)
+
     # TODO Create queue251 
+    dealer_queue = Queue251()
+
     # TODO Create lock(s) ?
+    dealer_lock = threading.Lock()
 
     # This tracks the length of the car queue during receiving cars by the dealership
     # i.e., update this list each time the dealer receives a car
     queue_stats = [0] * MAX_QUEUE_SIZE
 
     # TODO create your one factory
+    factory = Factory()
 
     # TODO create your one dealership
+    dealer = Dealer()
 
     log.start_timer()
 
     # TODO Start factory and dealership
-
+    
     # TODO Wait for factory and dealership to complete
 
     log.stop_timer(f'All {sum(queue_stats)} have been created')

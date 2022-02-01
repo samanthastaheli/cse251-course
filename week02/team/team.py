@@ -12,8 +12,15 @@ Instructions:
 
 """
 
+# from ast import Return
+# from datetime import datetime, timedelta
+# import threading
+# from urllib import request 
+# import requests
+# import json
+
 from datetime import datetime, timedelta
-import threading 
+import threading
 import requests
 import json
 
@@ -27,7 +34,11 @@ set_working_directory(__file__)
 class Request_thread(threading.Thread):
     # TODO - Add code to make an API call and return the results
     # https://realpython.com/python-requests/
-    pass
+    if request.status_code == 200:
+        data = json.load(request)
+        print('Drawing Card')
+        print(data)
+            # self.remaining += -1
 
 class Deck:
 
@@ -35,15 +46,26 @@ class Deck:
         self.id = deck_id
         self.reshuffle()
         self.remaining = 52
+        self.shuffle = requests.get(r"http://deckofcardsapi.com/api/deck/zyfer350mvmd/shuffle/")
+        
 
     def reshuffle(self):
         # TODO - add call to reshuffle
-        requests.get("http://deckofcardsapi.com/api/deck/{self.id}/shuffle/")
-
+        # result =  requests.get(f"http://deckofcardsapi.com/api/deck/{self.id}/shuffle/")
+        # if request.status_code == 200:
+        #     data = json.load()
+        #     print("Shuffling")
+        #     print(data)
+        pass
 
     def draw_card(self):
         # TODO add call to get a card
-        requests.get("http://deckofcardsapi.com/api/deck/{self.id}/draw/?count=2")
+        # print("Drawing card")
+        url = requests.get(r"http://deckofcardsapi.com/api/deck/zyfer350mvmd/draw/?count=1")
+        thread = Request_thread(url)
+       
+        card = data['cards']
+        return card['value']
 
 
     def cards_remaining(self):

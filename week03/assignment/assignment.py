@@ -17,6 +17,7 @@ Instructions:
 ------------------------------------------------------------------------------
 """
 
+from tkinter.tix import FileSelectBox
 from matplotlib.pylab import plt  # load plot library
 from PIL import Image
 import numpy as np
@@ -32,8 +33,8 @@ CPU_COUNT = mp.cpu_count() + 4
 
 # TODO Your final video need to have 300 processed frames.  However, while you are 
 # testing your code, set this much lower
-FRAME_COUNT = 20
-
+FRAME_COUNT = 300
+num_processes = 2
 RED   = 0
 GREEN = 1
 BLUE  = 2
@@ -62,8 +63,21 @@ def create_new_frame(image_file, green_file, process_file):
 
 
 # TODO add any functions to need here
+def call_create_frame(files):
+    arg1 = files[0]
+    arg2 = files[1]
+    arg3 = files[2]
+    create_new_frame(arg1, arg2, arg3)
 
-
+def create_list():
+  files = []
+  for i in range(1, FRAME_COUNT+1, 1):
+    image = rf'elephant/image{i:03d}.png'
+    green = rf'green/image{i:03d}.png'
+    process = rf'processed/image{i:03d}.png'
+    t = (image, green, process)
+    files.append(t)
+  return files
 
 if __name__ == '__main__':
     # single_file_processing(300)
@@ -75,23 +89,18 @@ if __name__ == '__main__':
     xaxis_cpus = []
     yaxis_times = []
 
-    # TODO Process all frames trying 1 cpu, then 2, then 3, ... to CPU_COUNT
-    #      add results to xaxis_cpus and yaxis_times
-
-
-    # sample code: remove before submitting  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # process one frame #10
-    image_number = 10
-
-    image_file = rf'elephant/image{image_number:03d}.png'
-    green_file = rf'green/image{image_number:03d}.png'
-    process_file = rf'processed/image{image_number:03d}.png'
+    # TODO Process all frames trying 1 cpu, then 2, then 3, ... to CPU_COUNT add results to xaxis_cpus and yaxis_times
 
     start_time = timeit.default_timer()
-    create_new_frame(image_file, green_file, process_file)
-    print(f'\nTime To Process all images = {timeit.default_timer() - start_time}')
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    files_list = create_list()
 
+    for i in range(1,CPU_COUNT+1):
+      process_time = timeit.default_timer()
+      with mp.Pool(i) as p:
+        p.map(call_create_frame, files_list)
+        log.write(f'Time for {FRAME_COUNT} frames using {i} processes:{timeit.default_timer() - process_time}')  
+      yaxis_times.append(timeit.default_timer() - process_time)
+      xaxis_cpus.append(i)
 
     log.write(f'Total Time for ALL processing: {timeit.default_timer() - all_process_time}')
 
