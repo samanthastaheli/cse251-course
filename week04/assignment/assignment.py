@@ -73,41 +73,70 @@ class Queue251():
 class Factory(threading.Thread):
     """ This is a factory.  It will create cars and place them on the car queue """
 
-    def __init__(self):
+    def __init__(self,
+                 factory_index,
+                 sem_dealer: threading.Semaphore,
+                 sem_factory: threading.Semaphore,
+                 dealer_queue,
+                 dealer_lock):
         # TODO, you need to add arguments that will pass all of data that 1 factory needs
         # to create cars and to place them in a queue.
-        self.model = []
-        self.make = []
-        self.year = []
+        threading.Thread.__init__(self)
+        self.factory_index = factory_index
+        self.sem_dealer = sem_dealer
+        self.sem_factory = sem_factory
+        self.dealer_queue = dealer_queue
+        self.dealer_lock = dealer_lock
+        self.cars_made = 0
 
 
     def run(self):
         for i in range(CARS_TO_PRODUCE):
-            # TODO Add you code here
-            car = Car()
-            self.model = car.model
-            self.make = car.make
-            self.year = car.year 
-            
             """
             create a car
             place the car on the queue
             signal the dealer that there is a car on the queue
-           """
+            """
+            # TODO Add you code here
+            self.sem_dealer.acquire() # check to see if dealer is full
 
+            # ??? do I need a lock here ???
+            self.dealer_queue.put(Car())
+            self.cars_made += 1
+
+            self.sem_factory.release()
+            # ??? does model, make, and year need to be used here ???
+            # car = Car()
+            # self.model = car.model
+            # self.make = car.make
+            # self.year = car.year 
+            
         # signal the dealer that there there are not more cars
-        pass
-
+        self.sem_dealer.acquire()
+        self.dealer_queue.put(None)
+        if(self.dealer_queue.size() > MAX_QUEUE_SIZE):
+            print(f'!!! Dealer Overflow !!!')
+        
+        self.sem_factory.release()
 
 class Dealer(threading.Thread):
     """ This is a dealer that receives cars """
 
-    def __init__(self, model, make, year):
-        # TODO, you need to add arguments that pass all of data that 1 Dealer needs
-        # to sell a car
-        self.model = []
-        self.make = []
-        self.year = []
+    def __init__(self,
+                 dealer_index,
+                 sem_dealer: threading.Semaphore,
+                 sem_factory: threading.Semaphore,
+                 dealer_queue,
+                 dealer_lock):
+        # TODO, you need to add arguments that will pass all of data that 1 factory needs
+        # to create cars and to place them in a queue.
+        threading.Thread.__init__(self)
+        self.dealer_index = dealer_index
+        self.sem_dealer = sem_dealer
+        self.sem_factory = sem_factory
+        self.dealer_queue = dealer_queue
+        self.dealer_lock = dealer_lock
+        self.cars_sold = 0
 
     def run(self):
         while True:
@@ -116,7 +145,18 @@ class Dealer(threading.Thread):
             take the car from the queue
             signal the factory that there is an empty slot in the queue
             """
+            self.sem_factory.acquire()
 
+            car = self.dealer_queue.get()
+            print(f'selling {car}')
+
+            # check if done
+            if(car == None):
+                break
+
+            self.cars_sold += 1
+
+            self.sem_dealer.release()
             # Sleep a little after selling a car
             # Last statement in this for loop - don't change
             time.sleep(random.random() / (SLEEP_REDUCE_FACTOR))
@@ -127,7 +167,7 @@ def main():
     log = Log(show_terminal=True)
 
     # TODO Create semaphore(s)
-    sem_dealer = threading.Semaphore(10)
+    sem_dealer = threading.Semaphore(MAX_QUEUE_SIZE)
     sem_factory = threading.Semaphore(0)
 
     # TODO Create queue251 
@@ -138,19 +178,25 @@ def main():
 
     # This tracks the length of the car queue during receiving cars by the dealership
     # i.e., update this list each time the dealer receives a car
-    queue_stats = [0] * MAX_QUEUE_SIZE
+    queue_stats = [0] * MAX_QUEUE_SIZE # ??? where do i implement this
 
     # TODO create your one factory
-    factory = Factory()
+    factory = []
+    factory.append(Factory(1, sem_dealer, sem_factory, dealer_queue, dealer_lock))
 
     # TODO create your one dealership
-    dealer = Dealer()
+    dealer = []
+    dealer.append(Dealer(1, sem_dealer, sem_factory, dealer_queue, dealer_lock))
 
     log.start_timer()
 
     # TODO Start factory and dealership
-    factory.run()
-    dealer.run(model, make, year)
+    factory.start()
+    dealer.start()
+
+    factory.join()
+    dealer.join()
+    
     # TODO Wait for factory and dealership to complete
 
     log.stop_timer(f'All {sum(queue_stats)} have been created')
