@@ -61,7 +61,7 @@ class Car():
         self.display()
            
     def display(self):
-        print(f'{self.make} {self.model}, {self.year}')
+        print(f'assembled: {self.make} {self.model}, {self.year}')
 
 
 class Queue251():
@@ -80,31 +80,52 @@ class Queue251():
             self.max_size = len(self.items)
 
     def get(self):
-        return self.items.pop(0)
+        if len(self.items) == 0:
+            print('!!! Cannot pop item because there is none !!!')
+        else:
+            return self.items.pop(0)
 
 
 class Factory(threading.Thread):
     """ This is a factory.  It will create cars and place them on the car queue """
 
-    def __init__(self):
+    def __init__(self,
+                 sem_high: threading.Semaphore,
+                 sem_low: threading.Semaphore,
+                 car_queue):
         self.cars_to_produce = random.randint(200, 300)     # Don't change
-
+        
+        threading.Thread.__init__(self)
+        self.sem_high = sem_high
+        self.sem_low = sem_low
+        self.car_queue = car_queue
+        self.cars_made = 0 # not being used yet, don't know if need to keep track of this
 
     def run(self):
-        # TODO produce the cars, the send them to the dealerships
-
-        # TODO wait until all of the factories are finished producing cars
+        for car in range(self.cars_to_produce):
+            # TODO produce the cars, the send them to the dealerships
+            self.sem_high.acquire()
+            self.car_queue.put(Car()) # appends car class to queue, a result of car class is added
+            car += 1
+            # TODO wait until all of the factories are finished producing cars
 
         # TODO "Wake up/signal" the dealerships one more time.  Select one factory to do this
-        pass
-
-
+        self.sem_low.release()
+            
 
 class Dealer(threading.Thread):
     """ This is a dealer that receives cars """
 
-    def __init__(self):
-        pass
+    def __init__(self, 
+                 sem_high: threading.Semaphore,
+                 sem_low: threading.Semaphore,
+                 car_queue,
+                 queue_stats):
+        threading.Thread.__init__(self)
+        self.sem_high = sem_high
+        self.sem_low = sem_low
+        self.car_queue = car_queue
+        self.queue_stats = queue_stats
 
     def run(self):
         while True:
