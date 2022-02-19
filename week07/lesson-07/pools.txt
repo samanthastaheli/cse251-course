@@ -1,0 +1,15 @@
+                  | Multi-args   Concurrent    Blocking     Ordered-results
+---------------------------------------------------------------------
+Pool.map          | no           yes            yes          yes
+Pool.map_async    | no           yes            no           yes
+Pool.apply        | yes          no             yes          no
+Pool.apply_async  | yes          yes            no           no
+Pool.starmap      | yes          yes            yes          yes
+Pool.starmap_async| yes          yes            no           no
+
+A system is said to be concurrent if it can support two or more actions 
+in progress at the same time. A system is said to be parallel if it can 
+support two or more actions executing simultaneously.
+
+So, Pool.apply will apply a function to a list but it will wait to get
+the results of each function before applying the next one.

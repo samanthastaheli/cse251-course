@@ -1,0 +1,13 @@
+22:36:20| Marble count                = 1000
+22:36:20| settings["creator-delay"]   = 0.01
+22:36:20| settings["bag-count"]       = 7
+22:36:20| settings["bagger-delay"]    = 0.05
+22:36:20| settings["assembler-delay"] = 0.05
+22:36:20| settings["wrapper-delay"]   = 0.05
+22:36:20| Create the processes
+22:36:20| Starting the processes
+22:36:20| Waiting for processes to finish
+22:36:21| Contents of boxes.txt
+22:36:21| Large marble: Apollo, marbles: Vegas Gold, Pale Goldenrod, White Smoke, Platinum, Duke Blue, Spanish Pink, Platinum
+22:36:21| Large marble: Winner, marbles: Cotton Candy, Bistre Brown, Silver Chalice, Sage, Slate Blue, Mint Green, Russian Green
+22:36:21| Total time to transfer content = 2:  = 1.30913910

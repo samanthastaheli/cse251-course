@@ -1,0 +1,13 @@
+22:35:02| Marble count                = 1000
+22:35:02| settings["creator-delay"]   = 0.01
+22:35:02| settings["bag-count"]       = 7
+22:35:02| settings["bagger-delay"]    = 0.05
+22:35:02| settings["assembler-delay"] = 0.05
+22:35:02| settings["wrapper-delay"]   = 0.05
+22:35:02| Create the processes
+22:35:02| Starting the processes
+22:35:02| Waiting for processes to finish
+22:35:04| Contents of boxes.txt
+22:35:04| Large marble: Lucky, marbles: Stop Red, Shandy, Royal Orange, Brown, Lavender Purple, Blue, Mint Green
+22:35:04| Large marble: 5-Star, marbles: Ivory, La Salle Green, Gold, Auburn, La Salle Green, Stop Red, Mint Cream
+22:35:04| Total time to transfer content = 2:  = 1.30285530
