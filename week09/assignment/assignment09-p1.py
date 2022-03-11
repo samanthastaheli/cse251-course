@@ -2,7 +2,7 @@
 Course: CSE 251 
 Lesson Week: 09
 File: assignment09-p1.py 
-Author: <Add name here>
+Author: Samantha Staheli
 
 Purpose: Part 1 of assignment 09, finding a path to the end position in a maze
 
@@ -15,10 +15,11 @@ import math
 from screen import Screen
 from maze import Maze
 import cv2
+import sys
 
 # Include cse 251 common Python files - Dont change
-from cse251 import *
-set_working_directory(__file__)
+# from cse251 import *
+# set_working_directory(__file__)
 
 SCREEN_SIZE = 800
 COLOR = (0, 0, 255)
@@ -31,9 +32,10 @@ def solve_path(maze):
         The path is a list of positions, (x, y) """
         
     # TODO start add code here
+    maze = Maze() 
     path = []
     return path
-
+    
 
 def get_path(log, filename):
     """ Do not change this function """
@@ -85,8 +87,8 @@ def find_paths(log):
 def main():
     """ Do not change this function """
     sys.setrecursionlimit(5000)
-    log = Log(show_terminal=True)
-    find_paths(log)
+    # log = Log(show_terminal=True)
+    # find_paths(log)
 
 
 if __name__ == "__main__":

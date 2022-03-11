@@ -51,7 +51,7 @@ def main():
     # TODO create one last data with close_connection set to true
 
     # TODO close socket connection
-
+    
 
 if __name__ == '__main__':
     main()

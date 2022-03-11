@@ -2,7 +2,7 @@
 Course: CSE 251 
 Lesson Week: 09
 File: assignment09-p2.py 
-Author: <Add name here>
+Author: Samantha Staheli
 
 Purpose: Part 2 of assignment 09, finding the end position in the maze
 
@@ -30,7 +30,7 @@ import math
 import threading 
 from screen import Screen
 from maze import Maze
-
+import sys
 import cv2
 
 # Include cse 251 common Python files - Dont change

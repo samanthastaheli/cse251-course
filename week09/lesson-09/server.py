@@ -8,8 +8,9 @@ PORT = 11007
 
 
 def main():
-    pass
     # TODO create socket, bind, listen and loop to get data
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind()
 
 
 

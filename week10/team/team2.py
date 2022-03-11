@@ -7,14 +7,34 @@ Instructions:
 - Look for the TODO comments
 """
 
+from statistics import mode
 import time
 import threading
+import mmap
+
+# TEST FUNCTIONS --------------------------------------------------------------
+def read_file(filename):
+    with open(filename, mode='r', encoding='utf8') as file_obj:
+        text = file_obj.read()
+        print(text)
 
 # -----------------------------------------------------------------------------
 def reverse_file(filename):
     """ Display a file in reverse order using a mmap file. """
     # TODO add code here
-    pass
+    data =  open(filename, mode='r', encoding='utf8')
+
+    for line in data:
+        for word in line.split(' '):
+            print(word)
+
+def reverse_file_mmap(filename):
+    """ Display a file in reverse order using a mmap file. """
+    with open(filename, mode='r', encoding='utf8') as file_obj:
+        with mmap.mmap(file_obj.fileno(), length=0, access=mmap.ACCESS_READ) as map_file:
+        # if length is set to 0 it will do the full file but can be dangerous/problamatic if file is to big
+            for line in iter(map_file.readline, 1):
+                print(line)
 
 
 # -----------------------------------------------------------------------------
@@ -47,8 +67,10 @@ def promote_letter_a_threads(filename):
 
 # -----------------------------------------------------------------------------
 def main():
-    reverse_file('data.txt')
-    promote_letter_a('letter_a.txt')
+    # read_file('data.txt')
+    # reverse_file('data.txt')
+    reverse_file_mmap('data.txt')
+    # promote_letter_a('letter_a.txt')
     
     # TODO
     # When you get the function promote_letter_a() working

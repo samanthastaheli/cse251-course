@@ -27,6 +27,7 @@ TODO
 using namespace std;
 
 #define NUMBERS  100
+#define NUM_THREADS 5
 
 struct args
 {
@@ -63,6 +64,7 @@ void findPrimes(void* record)
   // Loop through the array looking for prime numbers
   for (int i = arguments->start; i < arguments->end; i++)
   {
+    //cout << "i=" << i << ", start=" << arguments->start << ", end=" << arguments->end << "\n";
     if (isPrime(arguments->array[i]) == 1)
     {
       cout << arguments->array[i] << endl;
@@ -86,12 +88,26 @@ int main()
   }
   cout << endl;
 
-  // Create structure that will be used to pass the array and the
-  // start of end of the array to another function
-  struct args rec = { arrayValues, 0, NUMBERS - 1 };
+  // Create array of records, one for each thread
+	struct args records[NUMBERS];
+	
+	// TODO using the number of threads, create an 'args' with
+	// the start and end (arrayValues can be the same for all)
 
-  // Find the primes in the array
-  findPrimes(&rec);
+	// Create array of threads
+	pthread_t threads[NUM_THREADS];
+	
+	// TODO using the number of threads, create a thread with
+	// the args for that thread and target the findPrimes function
 
-  return 0;
+	
+	// TODO join the threads
+	for (int i = 0; i < NUM_THREADS; i++) {
+		pthread_join(threads[i], NULL);
+	}
+
+	// ensure that the threads terminate
+	pthread_exit(NULL);
+
+    return 0;
 }
