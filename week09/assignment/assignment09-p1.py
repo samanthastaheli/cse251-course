@@ -12,28 +12,52 @@ Instructions:
 
 """
 import math
+from multiprocessing.dummy import current_process
 from screen import Screen
 from maze import Maze
 import cv2
 import sys
 
 # Include cse 251 common Python files - Dont change
-# from cse251 import *
+from cse251 import *
 # set_working_directory(__file__)
 
 SCREEN_SIZE = 800
 COLOR = (0, 0, 255)
-
+DONE = False
 
 # TODO add any functions
 
-def solve_path(maze):
+def solve_path(maze, position=None, path=None):
     """ Solve the maze and return the path found between the start and end positions.  
         The path is a list of positions, (x, y) """
-        
+    global DONE
     # TODO start add code here
-    maze = Maze() 
-    path = []
+    if position is None and path is None:
+        position = maze.start_pos
+        path = []
+        
+    
+    row = position[0]
+    col = position[1]
+    moves = maze.get_possible_moves(row, col)
+
+    if DONE == True:
+        return
+    else:
+        if maze.at_end(row, col):
+            DONE = True
+        if len(moves) == 0:
+            maze.restore(row, col)
+            return
+        else:
+            for pos in moves:
+                row = pos[0]
+                col = pos[1]
+                path.append(pos)
+                maze.move(row, col, COLOR)
+                position = (row, col)
+                solve_path(maze, position, path)
     return path
     
 
@@ -87,9 +111,10 @@ def find_paths(log):
 def main():
     """ Do not change this function """
     sys.setrecursionlimit(5000)
-    # log = Log(show_terminal=True)
-    # find_paths(log)
+    log = Log(show_terminal=True)
+    find_paths(log)
 
 
 if __name__ == "__main__":
     main()
+
