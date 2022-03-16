@@ -46,9 +46,10 @@ Instructions:
 - Not allowed to use Value() or Array() or any other shared data type from 
   the multiprocessing package.
 
+Notes:
+- can use mp list 
+
 Add any comments for me:
-
-
 
 """
 import random
@@ -68,7 +69,7 @@ def main():
     smm.start()
 
     # TODO - Create a ShareableList to be used between the processes
-
+    
     # TODO - Create any lock(s) or semaphore(s) that you feel you need
 
     # TODO - create reader and writer processes

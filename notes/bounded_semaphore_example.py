@@ -2,7 +2,7 @@ from multiprocessing import Semaphore
 import threading
 import time
 
-semaphore = threading.Semaphore(value=5)
+semaphore = threading.BoundedSemaphore(value=5)
 
 def access(thread_number):
     print('{} is trying to access!'.format(thread_number))

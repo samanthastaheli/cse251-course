@@ -36,7 +36,7 @@ def promote_letter_a(filename):
     # TODO add code here
     with open(filename, mode='r', encoding='utf8') as file_obj:
         with mmap.mmap(file_obj.fileno(), length=0, access=mmap.ACCESS_READ) as map_file:
-            
+            pass
 
 
 # -----------------------------------------------------------------------------
