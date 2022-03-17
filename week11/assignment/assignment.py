@@ -66,6 +66,9 @@ def guest():
 # -----------------------------------------------------------------------------
 def main():
     # TODO - add any variables, data structures, processes you need
+    # create mp list that can be shared/used in process
+    cleaned_count = mp.Manager().list()
+    party_count = mp.Manager().list()
     # TODO - add any arguments to cleaner() and guest() that you need
 
     # Start time of the running of the program. 
