@@ -45,23 +45,103 @@ import multiprocessing as mp
 
 # -------------------------------------------------------------------
 class Queue_t:
-	pass
+    '''
+    creates a queue 
+    uses threads to append and delete from queue
+    '''
+    def __init__(self):
+        self.queue_list = []
+
+    def put(self, item):
+        self.queue_list.append(item) 
+
+    def get(self):
+        # pop will remove first item in list when 
+        return self.queue_list.pop(0) 
+    
+    def size(self):
+        return len(self.queue_list)
+
 
 # -------------------------------------------------------------------
 class Stack_t:
-	pass
+    '''
+    creates a stack 
+    uses threads to append and delete from stack
+    '''
+    def __init__(self):
+        self.stack_list = []
+
+    def push(self, item):
+        self.stack_list.push(item) 
+
+    def pop(self):
+        return self.stack_list.pop() 
+    
+    def size(self):
+        return len(self.stack_list)
 
 # -------------------------------------------------------------------
 class Queue_p:
+    # create a queue using pipes
 	pass
 
 # -------------------------------------------------------------------
 class Stack_p:
+    # create a stack using pipes
 	pass
 
 
+# TESTS -------------------------------------------------------------
+
+def queue_t_test(thread_num, amount, queue, list):
+    '''
+    add numbers to list
+    return length of list and first and last values added
+    '''
+    for i in range(amount):
+        item = i+1
+        queue.put(item)
+        print(f'thread num {thread_num} adding {item} to queue_t')
+    print(f'thread num {thread_num} len: {queue.size()}, first: {list[0]}, last: {list[i]}')
+
+def stack_t_test(thread_num, amount, stack, list):
+    '''
+    add numbers to list
+    return length of list and first and last values added
+    '''
+    for i in range(amount):
+        item = i+1
+        stack.push(item)
+        print(f'thread num {thread_num} adding {item} to stack_t')
+    print(f'thread num {thread_num} len: {stack.size()}, first: {list[0]}, last: {list[i]}')
+    
+# -------------------------------------------------------------------
+
 def main():
-    pass
+    num = 20
+
+    queue_t = Queue_t()
+    queue_list = queue_t.queue_list
+
+    t1 = threading.Thread(target=queue_t_test, args=(1, num, queue_t, queue_list))
+    t2 = threading.Thread(target=queue_t_test, args=(2, num, queue_t, queue_list))
+
+    stack_t = Stack_t()
+    stack_list = stack_t.stack_list
+
+    t3 = threading.Thread(target=stack_t_test, args=(1, num, stack_t, stack_list))
+    t4 = threading.Thread(target=stack_t_test, args=(2, num, stack_t, stack_list))
+
+    t1.start()
+    t2.start()
+    t3.start()
+    t4.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
+    t4.join()
 
 if __name__ == '__main__':
     main()

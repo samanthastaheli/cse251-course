@@ -26,8 +26,10 @@ Why would it work?
 <Answer here>
 
 """
+from asyncio import threads
 import math
-import threading 
+import threading
+from turtle import position 
 from screen import Screen
 from maze import Maze
 import sys
@@ -73,12 +75,51 @@ def get_color():
     return color
 
 
-def solve_find_end(maze):
-    """ finds the end position using threads.  Nothing is returned """
+def get_moves(maze, position):
+    """ Call the get_possible_moves() function from Maze.
+        Returns """
+    row = position[0]
+    col = position[1]
+    moves = maze.get_possible_moves(row, col)
+    return moves
+
+
+def do_move(maze, position, color):
+    """ Calls move method from Maze. """
+    row = position[0]
+    col = position[1]
+    maze.move(row, col, color)
+    print(f'Moving... Color: {color} Cordinates: ({row}, {col})')
+
+
+def solve_find_end(maze, position, color):
+    """ finds the end position using threads. Nothing is returned """
     # When one of the threads finds the end position, stop all of them
+    # use at_end() or when 0 moves left
+    
+    row = position[0]
+    col = position[1]
+    # stop when end is reached
+    if maze.at_end(row, col): 
+        return
 
+    moves = get_moves(maze, position)
 
-    pass
+    # if only 1 move, move and call solve_find_maze again with current color and position
+    # make new thread and call function again
+    if len(moves) == 1:
+        pos = moves[0]
+        thread = threading.Thread(target=do_move, args=(maze, pos, color))
+        thread.start()
+        thread.join()
+        solve_find_end(maze, position, color)
+    else:
+        for pos in moves:
+            color = get_color()
+            thread = threading.Thread(target=do_move, args=(maze, pos, color))
+            thread.start()
+            thread.join()
+            solve_find_end(maze, position, color)
 
 
 def find_end(log, filename, delay):
@@ -91,8 +132,11 @@ def find_end(log, filename, delay):
     screen.background((255, 255, 0))
 
     maze = Maze(screen, SCREEN_SIZE, SCREEN_SIZE, filename, delay=delay)
+    position = maze.get_start_pos()
+    maze.move(position[0], position[1], COLOR)
+    threads = []
 
-    solve_find_end(maze)
+    solve_find_end(maze, position, COLOR)
 
     log.write(f'Number of drawing commands = {screen.get_command_count()}')
     log.write(f'Number of threads created  = {thread_count}')
