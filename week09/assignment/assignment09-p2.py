@@ -89,43 +89,59 @@ def do_move(maze, position, color):
     row = position[0]
     col = position[1]
     maze.move(row, col, color)
-    print(f'Moving... Color: {color} Cordinates: ({row}, {col})')
+    # print(f'Moving... Color: {color} Cordinates: ({row}, {col})')
 
 
 def solve_find_end(maze, position, color):
     """ finds the end position using threads. Nothing is returned """
     # When one of the threads finds the end position, stop all of them
     # use at_end() or when 0 moves left
-    
+    global thread_count
+    global stop
+
     row = position[0]
     col = position[1]
     # stop when end is reached
-    if maze.at_end(row, col): 
+    if maze.at_end(row, col) or stop == True: 
+        stop = True
         return
 
     moves = get_moves(maze, position)
 
     # if only 1 move, move and call solve_find_maze again with current color and position
     # make new thread and call function again
-    if len(moves) == 1:
+    if len(moves) == 0:
+        return
+    elif len(moves) == 1:
+        # time.sleep(.5)
         pos = moves[0]
-        thread = threading.Thread(target=do_move, args=(maze, pos, color))
-        thread.start()
-        thread.join()
-        solve_find_end(maze, position, color)
+        do_move(maze, pos, color)
+        solve_find_end(maze, pos, color)
     else:
         for pos in moves:
-            color = get_color()
-            thread = threading.Thread(target=do_move, args=(maze, pos, color))
-            thread.start()
-            thread.join()
-            solve_find_end(maze, position, color)
+            if pos == moves[0]:
+                do_move(maze, pos, color)
+                thread = threading.Thread(target=solve_find_end, args=(maze, pos, color))
+                thread_count += 1
+                thread.start()
+                # solve_find_end(maze, pos, color)
+            else:
+                color = get_color()
+                do_move(maze, pos, color)
+                thread = threading.Thread(target=solve_find_end, args=(maze, pos, color))
+                thread_count += 1
+                thread.start()
+                # solve_find_end(maze, pos, color)
+        thread.join()
+        
 
 
 def find_end(log, filename, delay):
     """ Do not change this function """
 
     global thread_count
+    global stop
+    stop = False
 
     # create a Screen Object that will contain all of the drawing commands
     screen = Screen(SCREEN_SIZE, SCREEN_SIZE)
