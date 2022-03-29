@@ -60,30 +60,41 @@ BUFFER_SIZE = 10
 READERS = 2
 WRITERS = 2
 
+def writer():
+  pass
+
+def reader():
+  pass
+
 def main():
 
-    # This is the number of values that the writer will send to the reader
-    items_to_send = random.randint(1000, 10000)
+  # This is the number of values that the writer will send to the reader
+  items_to_send = random.randint(1000, 10000)
 
-    smm = SharedMemoryManager()
-    smm.start()
+  smm = SharedMemoryManager()
+  smm.start()
 
-    # TODO - Create a ShareableList to be used between the processes
-    
-    # TODO - Create any lock(s) or semaphore(s) that you feel you need
+  # Create a ShareableList to be used between the processes
+  shared_list = smm.ShareableList(range(BUFFER_SIZE))
 
-    # TODO - create reader and writer processes
+  # TODO - Create any lock(s) or semaphore(s) that you feel you need
+  # use semaphore to have size of shared list is buffer size
+  # since shared mem is immutable, use semaphore to "pop()" from list
+  # semaphore number will be index number of item in shared list
+  sem = mp.Semaphore(value=BUFFER_SIZE)
 
-    # TODO - Start the processes and wait for them to finish
+  # TODO - create reader and writer processes
 
-    print(f'{items_to_send} values sent')
+  # TODO - Start the processes and wait for them to finish
 
-    # TODO - Display the number of numbers/items received by the reader.
-    #        Can not use "items_to_send", must be a value collected
-    #        by the reader processes.
-    # print(f'{<your variable>} values received')
+  print(f'{items_to_send} values sent')
 
-    smm.shutdown()
+  # TODO - Display the number of numbers/items received by the reader.
+  #        Can not use "items_to_send", must be a value collected
+  #        by the reader processes.
+  # print(f'{<your variable>} values received')
+
+  smm.shutdown()
 
 
 if __name__ == '__main__':

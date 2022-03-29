@@ -11,19 +11,26 @@ Instructions:
 - Do not use any other Python modules other than the ones included
 - Each thread requires a different color by calling get_color()
 
-
 This code is not interested in finding a path to the end position,
 However, once you have completed this program, describe how you could 
 change the program to display the found path to the exit position.
 
 What would be your strategy?  
 
-<Answer here>
-
+To show a path to the end I would have 1 thread that moves based on the 
+other threads. The other threads will have a Boolean argument that is 
+true if the thread is still moving or false if it is stopped. If the 
+argument is true the main thread that will show the correct path will 
+follow that thread until the argument is false. Once the argument is 
+false the main thread will backtrack and follow a different thread. 
+It will do this until it finds the thread that is at the end. 
 
 Why would it work?
 
-<Answer here>
+It would work because the main thread does not have to try every move option.
+Instead the other threads will do that. The other threads will have different 
+colors until the main thread moves in that threads path, so the main thread 
+will override the other threads colors to show the correct path.
 
 """
 from asyncio import threads
