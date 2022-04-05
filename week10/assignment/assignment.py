@@ -2,7 +2,7 @@
 Course: CSE 251
 Lesson Week: 10
 File: assignment.py
-Author: <your name>
+Author: Samantha Staheli
 
 Purpose: assignment for week 10 - reader writer problem
 
@@ -60,20 +60,45 @@ BUFFER_SIZE = 10
 READERS = 2
 WRITERS = 2
 
-def writer():
-  pass
+def writer(sem_high_low, sem_low_high, items_to_send, shared_list):
+  """ adds numbers to shared_list 
+      send numbers to the reader  
+      values sent to the readers in consecutive order starting at value 1
+      each writer will use all of the sharedList buffer area (ie., BUFFER_SIZE memory positions)
+  """
+  items_sent = 0
+  for i in range(items_to_send):
+    sem_high_low.aquire()
+
+    shared_list[items_sent] = items_sent + 1
+
+    sem_low_high.release()
+    
+    # increase the index
+    index = (index + 1) % BUFFER_SIZE
 
 def reader():
-  pass
+  """ A process that receive numbers sent by the writer.  The reader will
+  accept values until indicated by the writer that there are no more values to
+  process. """
+  read_items = 0 # increase 
+
+  while True:
+    sem_low_high.aquire()
 
 def main():
 
   # This is the number of values that the writer will send to the reader
-  items_to_send = random.randint(1000, 10000)
+  # items_to_send = random.randint(1000, 10000)
+  items_to_send = random.randint(1, 50)
 
   smm = SharedMemoryManager()
   smm.start()
 
+  # amount recived variable, will be increased in reader()
+  values = smm.ShareableList([0] * 1) # only need 1 item
+  revived = mp.Value(0)
+  
   # Create a ShareableList to be used between the processes
   shared_list = smm.ShareableList(range(BUFFER_SIZE))
 
@@ -81,18 +106,26 @@ def main():
   # use semaphore to have size of shared list is buffer size
   # since shared mem is immutable, use semaphore to "pop()" from list
   # semaphore number will be index number of item in shared list
-  sem = mp.Semaphore(value=BUFFER_SIZE)
+  sem_high_low = mp.Semaphore(value=BUFFER_SIZE)
+  sem_low_high = mp.Semaphore(value=0)
 
   # TODO - create reader and writer processes
+  process_r = mp.Process(target=reader, args=(shared_list,)) # don't forget the comma
+  process_w = mp.Process(target=writer, args=(shared_list,))
 
   # TODO - Start the processes and wait for them to finish
+  process_r.start()
+  process_w.start()
+
+  process_r.join()
+  process_w.join()
 
   print(f'{items_to_send} values sent')
 
   # TODO - Display the number of numbers/items received by the reader.
   #        Can not use "items_to_send", must be a value collected
   #        by the reader processes.
-  # print(f'{<your variable>} values received')
+  print(f'{values} values received')
 
   smm.shutdown()
 
