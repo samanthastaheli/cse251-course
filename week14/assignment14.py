@@ -48,7 +48,7 @@ import requests
 
 # Include cse 251 common Python files - Dont change
 from cse251 import *
-set_working_directory(__file__)
+#set_working_directory(__file__)
 
 
 TOP_API_URL = 'http://127.0.0.1:8123'
@@ -286,30 +286,43 @@ class Request_thread(threading.Thread):
 def depth_fs_pedigree(family_id, tree):
     if family_id == None:
         return
+    print(f'Retrieving Family: {family_id}')
+    startingFamData = Request_thread(f'{TOP_API_URL}/family/{family_id}')
+    startingFamData.start()
+    startingFamData.join()
 
-    startFamData = Request_thread(f'{TOP_API_URL}/family/{id}')
-    startFamData.start()
-    startFamData.join()
+    famObject = Family(family_id, startingFamData.response)
+    husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
+    wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
+    husReq.start()
+    wifReq.start()
+    husReq.join()
+    wifReq.join()
 
-    famObject = Family(family_id, startFamData.response)
+    tree.add_person(Person(husReq.response))
+    print('The Person Count is: '+ str(tree.get_person_count()))
+    tree.add_person(Person(wifReq.response))
+    print('The Person Count is: '+ str(tree.get_person_count()))
 
 
-    for childId in famObject['children']:
+    print(str(famObject))
+    for childId in famObject.children:
         personRequest = Request_thread(f'{TOP_API_URL}/person/{childId}')
         personRequest.start()
         personRequest.join()
+        child = Person(personRequest.response)
+        if child.family == None:
+            return
+        depth_fs_pedigree(child.family, tree)
+        
 
-        tree.addPerson(personRequest)
-
-        depth_fs_pedigree(child, tree)
 
     print(f'Retrieving Family: {family_id}')
 
-    # print(current_fam.__str__())
-
+    
+    
     """
     outline:
-
     request family information
     request Husband - add to tree (Note there might not a husband in the family)
     request wife - add to tree (Note there might not a wife in the family)
