@@ -39,11 +39,13 @@ Describe how to speed up part 2
 <Add your comments here>
 
 """
+from logging import NullHandler
 import time
 import threading
 import multiprocessing as mp
 import json
 import random
+from cv2 import log
 import requests
 
 # Include cse 251 common Python files - Dont change
@@ -284,7 +286,9 @@ class Request_thread(threading.Thread):
 # TODO - Change this function to speed it up.  Your goal is to create the complete
 #        tree faster.
 def depth_fs_pedigree(family_id, tree):
-    if family_id == None:
+
+
+    if family_id is None:
         return
     print(f'Retrieving Family: {family_id}')
     startingFamData = Request_thread(f'{TOP_API_URL}/family/{family_id}')
@@ -295,13 +299,16 @@ def depth_fs_pedigree(family_id, tree):
     husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
     wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
     husReq.start()
-    wifReq.start()
     husReq.join()
-    wifReq.join()
+    husband = Person(husReq.response)
 
-    tree.add_person(Person(husReq.response))
+    wifReq.start()
+    wifReq.join()
+    wife = Person(wifReq.response)
+
+    tree.add_person(husband)
     print('The Person Count is: '+ str(tree.get_person_count()))
-    tree.add_person(Person(wifReq.response))
+    tree.add_person(wife)
     print('The Person Count is: '+ str(tree.get_person_count()))
 
 
@@ -311,9 +318,11 @@ def depth_fs_pedigree(family_id, tree):
         personRequest.start()
         personRequest.join()
         child = Person(personRequest.response)
-        if child.family == None:
-            return
-        depth_fs_pedigree(child.family, tree)
+        tree.add_person(child)
+        if husband.parents != None:
+            depth_fs_pedigree(husband.parents, tree)
+        
+        
         
 
 
@@ -424,6 +433,7 @@ def part3(log, start_id, generations):
 
 # -----------------------------------------------------------------------------
 def main():
+
     log = Log(show_terminal=True, filename_log='assignment.log')
 
     # starting family
