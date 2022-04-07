@@ -46,9 +46,6 @@ Instructions:
 - Not allowed to use Value() or Array() or any other shared data type from 
   the multiprocessing package.
 
-Notes:
-- can use mp list 
-
 Add any comments for me:
 
 """
@@ -118,8 +115,8 @@ def reader(shared_list, sem_high, sem_low, values):
 def main():
 
   # This is the number of values that the writer will send to the reader
-  # values_to_send = random.randint(1000, 10000)
-  values_to_send = random.randint(1, 50)
+  values_to_send = random.randint(1000, 10000)
+  # values_to_send = random.randint(1, 50)
 
   smm = SharedMemoryManager()
   smm.start()
