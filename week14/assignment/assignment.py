@@ -284,7 +284,7 @@ class Request_thread(threading.Thread):
 # -----------------------------------------------------------------------------
 # TODO - Change this function to speed it up.  Your goal is to create the complete
 #        tree faster.
-def depth_fs_pedigree(family_id, tree, parent):
+def depth_fs_pedigree(family_id, tree):
     if family_id == None:
         return
     print(f'Retrieving Family: {family_id}')
@@ -333,19 +333,20 @@ def depth_fs_pedigree(family_id, tree, parent):
 
     if husband.parents != None:
         # depth_fs_pedigree(husband.parents, tree)
-        husband_thread = threading.Thread(target=depth_fs_pedigree, args=(husband.parents, tree, 'husband'))
+        husband_thread = threading.Thread(target=depth_fs_pedigree, args=(husband.parents, tree,))
         threads_list.append(husband_thread)
 
     if wife.parents != None:
         # depth_fs_pedigree(wife.parents, tree)
-        wife_thread = threading.Thread(target=depth_fs_pedigree, args=(wife.parents, tree, 'wife'))
+        wife_thread = threading.Thread(target=depth_fs_pedigree, args=(wife.parents, tree,))
         threads_list.append(wife_thread)
 
-    for threads in threads_list:
-        threads.start()
-        
-    for threads in threads_list:
-        threads.join()
+    if len(threads_list) >= 0:
+        for threads in threads_list:
+            threads.start()
+            
+        for threads in threads_list:
+            threads.join()
 
     """
     outline:
@@ -369,40 +370,40 @@ def part1(log, start_id, generations):
 
     log.start_timer('Depth-First')
 
-    startingFamData = Request_thread(f'{TOP_API_URL}/family/{start_id}')
-    startingFamData.start()
-    startingFamData.join()
+    # startingFamData = Request_thread(f'{TOP_API_URL}/family/{start_id}')
+    # startingFamData.start()
+    # startingFamData.join()
 
-    famObject = Family(start_id, startingFamData.response)
-    # add family to family tree
-    tree.add_family(famObject)
+    # famObject = Family(start_id, startingFamData.response)
+    # # add family to family tree
+    # tree.add_family(famObject)
 
-    husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
-    wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
-    husReq.start()
-    husReq.join()
+    # husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
+    # wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
+    # husReq.start()
+    # husReq.join()
 
-    wifReq.start()
-    wifReq.join()
+    # wifReq.start()
+    # wifReq.join()
 
-    husband = Person(husReq.response)
-    tree.add_person(husband)
-    print(f'Added husband: {husband} Person Count now: {tree.get_person_count()}')
+    # husband = Person(husReq.response)
+    # tree.add_person(husband)
+    # print(f'Added husband: {husband} Person Count now: {tree.get_person_count()}')
 
-    wife = Person(wifReq.response)
-    tree.add_person(wife)
-    print(f'Added wife: {wife} Person Count now: {tree.get_person_count()}')
+    # wife = Person(wifReq.response)
+    # tree.add_person(wife)
+    # print(f'Added wife: {wife} Person Count now: {tree.get_person_count()}')
     
-    husband_thread = threading.Thread(target=depth_fs_pedigree, args=(husband.parents, tree, 'husband'))
-    wife_thread = threading.Thread(target=depth_fs_pedigree, args=(wife.parents, tree, 'wife'))
+    # husband_thread = threading.Thread(target=depth_fs_pedigree, args=(husband.parents, tree, 'husband'))
+    # wife_thread = threading.Thread(target=depth_fs_pedigree, args=(wife.parents, tree, 'wife'))
 
-    husband_thread.start()
-    wife_thread.start()
+    # husband_thread.start()
+    # wife_thread.start()
 
-    husband_thread.join()
-    wife_thread.join()
+    # husband_thread.join()
+    # wife_thread.join()
 
-    # depth_fs_pedigree(start_id, tree)
+    depth_fs_pedigree(start_id, tree)
     total_time = log.stop_timer()
 
 
