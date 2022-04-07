@@ -52,6 +52,7 @@ Notes:
 Add any comments for me:
 
 """
+from configparser import NoSectionError
 import random
 from multiprocessing.managers import SharedMemoryManager
 import multiprocessing as mp
@@ -60,72 +61,98 @@ BUFFER_SIZE = 10
 READERS = 2
 WRITERS = 2
 
-def writer(sem_high_low, sem_low_high, items_to_send, shared_list):
+def writer(shared_list, sem_high, sem_low, values_to_send):
   """ adds numbers to shared_list 
       send numbers to the reader  
       values sent to the readers in consecutive order starting at value 1
       each writer will use all of the sharedList buffer area (ie., BUFFER_SIZE memory positions)
   """
-  items_sent = 0
-  for i in range(items_to_send):
-    sem_high_low.aquire()
+  index = 0
+  for i in range(values_to_send):
+    sem_high.acquire()
 
-    shared_list[items_sent] = items_sent + 1
+    shared_list[index] = i
 
-    sem_low_high.release()
+    # release low semaphore because an item 
+    # was taken from the high semaphore and added to shared_list
+    sem_low.release()
     
     # increase the index
     index = (index + 1) % BUFFER_SIZE
+  
+  # release low semaphore again and 
+  sem_low.release()
 
-def reader():
+  # set end index of shared_list to None
+  shared_list[index] = None
+
+
+def reader(shared_list, sem_high, sem_low, values):
   """ A process that receive numbers sent by the writer.  The reader will
   accept values until indicated by the writer that there are no more values to
   process. """
-  read_items = 0 # increase 
+  read_values = 0 # increase 
+  index = 0
 
   while True:
-    sem_low_high.aquire()
+    sem_low.acquire()
+
+    # base case: when at end of shared_list
+    # end index is None
+    if shared_list[index] == None:
+      values[0] = read_values
+      return
+    
+    # go to next number
+    read_values += 1
+
+    # print numbers that are in shared_list
+    print(shared_list[index])
+
+    # increase the index
+    index = (index + 1) % BUFFER_SIZE
+
+    # number has been read so can release from high semaphore
+    sem_high.release()
 
 def main():
 
   # This is the number of values that the writer will send to the reader
-  # items_to_send = random.randint(1000, 10000)
-  items_to_send = random.randint(1, 50)
+  # values_to_send = random.randint(1000, 10000)
+  values_to_send = random.randint(1, 50)
 
   smm = SharedMemoryManager()
   smm.start()
 
   # amount recived variable, will be increased in reader()
   values = smm.ShareableList([0] * 1) # only need 1 item
-  revived = mp.Value(0)
   
   # Create a ShareableList to be used between the processes
+  # size of shared list is buffer size
   shared_list = smm.ShareableList(range(BUFFER_SIZE))
 
-  # TODO - Create any lock(s) or semaphore(s) that you feel you need
-  # use semaphore to have size of shared list is buffer size
+  # Create any lock(s) or semaphore(s) that you feel you need
   # since shared mem is immutable, use semaphore to "pop()" from list
-  # semaphore number will be index number of item in shared list
-  sem_high_low = mp.Semaphore(value=BUFFER_SIZE)
-  sem_low_high = mp.Semaphore(value=0)
+  # semaphore number will be index number of items in shared list/buffer size
+  sem_high = mp.Semaphore(value=BUFFER_SIZE)
+  sem_low = mp.Semaphore(value=0)
 
-  # TODO - create reader and writer processes
-  process_r = mp.Process(target=reader, args=(shared_list,)) # don't forget the comma
-  process_w = mp.Process(target=writer, args=(shared_list,))
+  # create reader and writer processes
+  process_w = mp.Process(target=writer, args=(shared_list, sem_high, sem_low, values_to_send)) 
+  process_r = mp.Process(target=reader, args=(shared_list, sem_high, sem_low, values)) 
 
-  # TODO - Start the processes and wait for them to finish
-  process_r.start()
+  # Start the processes and wait for them to finish
   process_w.start()
+  process_r.start()
 
-  process_r.join()
   process_w.join()
+  process_r.join()
 
-  print(f'{items_to_send} values sent')
+  print(f'{values_to_send} values sent')
 
-  # TODO - Display the number of numbers/items received by the reader.
-  #        Can not use "items_to_send", must be a value collected
-  #        by the reader processes.
-  print(f'{values} values received')
+  # Display the number of numbers/items received by the reader.
+  # Can not use "items_to_send", must be a value collected by the reader processes.
+  print(f'{values[0]} values received')
 
   smm.shutdown()
 
