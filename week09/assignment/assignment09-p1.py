@@ -26,7 +26,7 @@ SCREEN_SIZE = 800
 COLOR = (0, 0, 255)
 DONE = False
 
-# TODO add any functions
+# add any functions
 
 def solve_path(maze, position, path):
     """ Solve the maze and return the path found between the start and end positions.  

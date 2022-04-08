@@ -2,7 +2,7 @@
 Course: CSE 251
 Lesson Week: 14
 File: assignment.py
-Author: <your name>
+Author: Samantha Staheli
 Purpose: Assignment 13 - Family Search
 
 Instructions:
@@ -21,22 +21,32 @@ Requesting an individual from the server:
 person = Request_thread(f'{TOP_API_URL}/person/{id}')
 
 
-You will lose 10% if you don't detail your part 1 
-and part 2 code below
+Describe how to speed up part 1:
 
-Describe how to speed up part 1
-
-<Add your comments here>
-
-
-Describe how to speed up part 2
-
-<Add your comments here>
+To speed up part 1 I created threads for the husband 
+and wife. Then created threads for each of their children. 
+These new threads recursively called the function and passes 
+in the childs family id so their spouse and children 
+would be added to the tree.
 
 
-10% Bonus to speed up part 3
+Describe how to speed up part 2:
 
-<Add your comments here>
+To speed up part 2 you need to add a familys generation of 
+children to the tree concurrently with another family. This is 
+done by creating a thread for every child. This created a 
+level order traversal by traversing through the level of 
+children first then traversing through the next level. 
+I created a thread for each child because their next level 
+will be different than their siblings. This speed up the 
+process because every child is adding their children to the 
+tree making them concurrent with their other siblings.
+
+
+10% Bonus to speed up part 3:
+
+Part 3 is similar to part 2, so it would be sped up 
+the same way but semaphores would be incorporated.
 
 """
 from concurrent.futures import thread
@@ -45,6 +55,7 @@ import threading
 import multiprocessing as mp
 import json
 import random
+from turtle import done
 import requests
 
 # Include cse 251 common Python files - Dont change
@@ -53,7 +64,7 @@ set_working_directory(__file__)
 
 
 TOP_API_URL = 'http://127.0.0.1:8123'
-
+DONE = False
 
 # ----------------------------------------------------------------------------
 # Do not change this class
@@ -285,6 +296,16 @@ class Request_thread(threading.Thread):
 # TODO - Change this function to speed it up.  Your goal is to create the complete
 #        tree faster.
 def depth_fs_pedigree(family_id, tree):
+    """
+    outline:
+
+    request family information
+    request Husband - add to tree (Note there might not a husband in the family)
+    request wife - add to tree (Note there might not a wife in the family)
+    request children - add them to tree
+    recursive call on the husband
+    recursive call on the wife
+    """
     if family_id == None:
         return
     print(f'Retrieving Family: {family_id}')
@@ -297,10 +318,6 @@ def depth_fs_pedigree(family_id, tree):
     famObject = Family(family_id, startingFamData.response)
     # add family to family tree
     tree.add_family(famObject)
-
-    hus_thread = threading.Thread(target=Request_thread, args=(f'{TOP_API_URL}/person/{famObject.husband}'))
-    hus_thread.start()
-    hus_thread.join()
 
     husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
     wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
@@ -348,17 +365,7 @@ def depth_fs_pedigree(family_id, tree):
         for threads in threads_list:
             threads.join()
 
-    """
-    outline:
-
-    request family information
-    request Husband - add to tree (Note there might not a husband in the family)
-    request wife - add to tree (Note there might not a wife in the family)
-    request children - add them to tree
-    recursive call on the husband
-    recursive call on the wife
-    """
-
+    
 # -----------------------------------------------------------------------------
 # You must not change this function
 def part1(log, start_id, generations):
@@ -369,40 +376,7 @@ def part1(log, start_id, generations):
     req.join()
 
     log.start_timer('Depth-First')
-
-    # startingFamData = Request_thread(f'{TOP_API_URL}/family/{start_id}')
-    # startingFamData.start()
-    # startingFamData.join()
-
-    # famObject = Family(start_id, startingFamData.response)
-    # # add family to family tree
-    # tree.add_family(famObject)
-
-    # husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
-    # wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
-    # husReq.start()
-    # husReq.join()
-
-    # wifReq.start()
-    # wifReq.join()
-
-    # husband = Person(husReq.response)
-    # tree.add_person(husband)
-    # print(f'Added husband: {husband} Person Count now: {tree.get_person_count()}')
-
-    # wife = Person(wifReq.response)
-    # tree.add_person(wife)
-    # print(f'Added wife: {wife} Person Count now: {tree.get_person_count()}')
-    
-    # husband_thread = threading.Thread(target=depth_fs_pedigree, args=(husband.parents, tree, 'husband'))
-    # wife_thread = threading.Thread(target=depth_fs_pedigree, args=(wife.parents, tree, 'wife'))
-
-    # husband_thread.start()
-    # wife_thread.start()
-
-    # husband_thread.join()
-    # wife_thread.join()
-
+  
     depth_fs_pedigree(start_id, tree)
     total_time = log.stop_timer()
 
@@ -419,13 +393,87 @@ def part1(log, start_id, generations):
     
 # -----------------------------------------------------------------------------
 def breadth_fs_pedigree(start_id, tree):
-    # TODO - implement breadth first retrieval
+    # implement breadth first retrieval
     # This video might help understand BFS
     # https://www.youtube.com/watch?v=86g8jAQug04
 
-    print('\n\n\nWARNING: BFS function not written')
+    # print(f'Retrieving Family: {start_id}')
 
-    pass
+    if start_id == None:
+        return
+
+    # if start_id is already in the tree then return
+    if tree.does_family_exist(start_id):
+        return
+
+    # get fam data
+    famData = Request_thread(f'{TOP_API_URL}/family/{start_id}')
+    famData.start()
+    famData.join()
+
+    # add family to family tree
+    famObject = Family(start_id, famData.response)
+    tree.add_family(famObject)
+    print(f'family object: {famObject}')
+
+    # if family does not have children return
+    if len(famObject.children) == 0:
+        return
+
+    # get husband and wife data
+    husReq = Request_thread(f'{TOP_API_URL}/person/{famObject.husband}')
+    wifReq = Request_thread(f'{TOP_API_URL}/person/{famObject.wife}')
+
+    husReq.start()
+    husReq.join()
+
+    wifReq.start()
+    wifReq.join()
+
+    # add husband and wife to tree
+    husband = Person(husReq.response)
+    tree.add_person(husband)
+    print(f'Added husband: {husband.id}')
+    print(f'Person Count now: {tree.get_person_count()}')
+
+    wife = Person(wifReq.response)
+    tree.add_person(wife)
+    print(f'Added wife: {wife.id}')
+    print(f'Person Count now: {tree.get_person_count()}')
+
+    # start thread for every child
+    children_list = []
+    children_threads = []
+    for childId in famObject.children:
+        # get child data
+        childRequest = Request_thread(f'{TOP_API_URL}/person/{childId}')
+        childRequest.start()
+        childRequest.join()
+        # add child to tree
+        child = Person(childRequest.response)
+        tree.add_person(child)
+        # add the child to the children_list
+        # if child.family is not None:
+        children_list.append(child)
+        print(f'Added child: {child.id}')
+        print(f'Person Count now: {tree.get_person_count()}')
+
+        # children_threads.append(threading.Thread(target=breadth_fs_pedigree, args=(child.id, tree,)))
+
+    
+
+    # start threads for each child
+    for child in children_list:
+        print(f'starting thread for child: {child.id}')
+        children_threads.append(threading.Thread(target=breadth_fs_pedigree, args=(child.id, tree,)))
+
+    if len(children_threads) >= 0:
+        for threads in children_threads:
+            threads.start()
+            
+        for threads in children_threads:
+            threads.join()
+
 
 # -----------------------------------------------------------------------------
 # You must not change this function
